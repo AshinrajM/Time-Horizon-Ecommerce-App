@@ -177,6 +177,7 @@ def remove_cart(request, product_id):
                     del request.session["coupon"]
             cart_item.quantity -= 1
             cart_item.save()
+            return redirect("cart")
 
         else:
             return redirect("cart")
