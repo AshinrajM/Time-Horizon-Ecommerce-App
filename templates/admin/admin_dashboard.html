@@ -75,10 +75,12 @@
             <div class="row">
               <div class="col-xl-3 col-lg-6 col-sm-6 grid-margin stretch-card">
                 <div class="card">
-                  {% if order_count %}
+                  {% if order_count > -1 %}
                   <div class="card-body text-center">
                     <h5 class="mb-2 text-dark font-weight-normal">Orders</h5>
+                    <!-- <h2 class="mb-4 text-dark font-weight-bold">{{ order_count }}</h2> -->
                     <h2 class="mb-4 text-dark font-weight-bold">{{ order_count }}</h2>
+
                     <div
                       class="dashboard-progress dashboard-progress-1 d-flex align-items-center justify-content-center item-parent"
                       style="position: relative;">
@@ -146,6 +148,8 @@
                 </div>
               </div>
             </div>
+
+            {% if orders_count > 0 %}
             <div class="row">
               <div class="col-12 grid-margin">
                 <div class="card">
@@ -201,11 +205,15 @@
                 </div>
               </div>
             </div>
+            {% endif %}
+
+
+            {% if orders_count > 0 %}
             <div class="row">
               <div class="col-sm-4 grid-margin stretch-card">
                 <div class="card card-danger-gradient">
                   <div class="card-body mb-4">
-                    <h4 class="card-title text-white">Account Retention</h4>
+                    <!-- <h4 class="card-title text-white">Account Retention</h4> -->
                     {% if income %}
                       
                     <div class="mt-4 mb-4">
@@ -282,6 +290,7 @@
                 </div>
               </div>
             </div>
+            {% endif %}
           </div>
         </div>
         {% if orders_in_orange %}

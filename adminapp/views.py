@@ -65,16 +65,148 @@ def admin_logout(request):
     return redirect("admin_login")
 
 
+# @staff_member_required(login_url="admin_login")
+# @cache_control(no_cache=True, no_store=True)
+# def admin_dashboard(request):
+#     context = {}
+#     try:
+#         income = Order.objects.filter(
+#             Q(status="Delivered") | Q(status="Return Request Rejected")
+#         ).aggregate(Sum("order_total"))["order_total__sum"]
+
+#         total_income = float(income)
+
+#         total_successfull_orders = Order.objects.filter(
+#             Q(status="Delivered") | Q(status="Return Request Rejected")
+#         ).count()
+#         # total_cancelled_orders = Order.objects.filter(
+#         #     Q(status="Cancelled") | Q(status="Returned")
+#         # ).count()
+#         refund_amount = Order.objects.filter(is_returned=True).aggregate(
+#             Sum("refund_amount")
+#         )["refund_amount__sum"]
+
+#         total_refund_amount = float(refund_amount)
+
+#         # total_profit = round(total_income * Decimal(0.20), 2)
+
+#         profit = total_income * 0.20
+
+#         total_profit = float(profit)
+#         user_count = CustomUser.objects.all().count()
+#         product_count = Product.objects.all().count()
+#         order_count = Order.objects.count()
+#         categories = Category.objects.count()
+#         cash_on_delivery = Order.objects.filter(payment__payment_method="COD").count()
+#         razor_pay = Order.objects.filter(
+#             payment__payment_method="Paid by razorpay"
+#         ).count()
+
+#         refund_amount = Order.objects.aggregate(total=Sum("refund_amount"))["total"]
+
+#         # monthly sales
+
+#         month_names = {
+#             1: "January",
+#             2: "February",
+#             3: "March",
+#             4: "April",
+#             5: "May",
+#             6: "June",
+#             7: "July",
+#             8: "August",
+#             9: "September",
+#             10: "October",
+#             11: "November",
+#             12: "December",
+#         }
+
+#         monthly_sales_data = (
+#             Order.objects.annotate(month=ExtractMonth("created_at"))
+#             .values("month")
+#             .annotate(total_sales=Count("id"))
+#             .order_by("month")
+#         )
+
+#         data = [["Month", "Sales"]]
+#         for sales in monthly_sales_data:
+#             month = sales["month"]
+#             total_sales = sales["total_sales"]
+#             month_name = month_names[month]  # Get the month name from the dictionary
+#             data.append([month_name, total_sales])
+
+#         # monthly sales calculation end
+
+#         cod = round((cash_on_delivery / order_count) * 100)
+#         razor_pay = round((razor_pay / order_count) * 100)
+
+#         requests = Order.objects.filter(status="Return Requested")
+
+#         if request.method == "POST":
+#             fromDate = request.POST.get("fromDate")
+#             toDate = request.POST.get("toDate")
+#             try:
+#                 if fromDate < toDate:
+#                     orders_in_range = Order.objects.filter(
+#                         created_at__range=(fromDate, toDate)
+#                     )
+#                     context = {
+#                         "fromDate": fromDate,
+#                         "toDate": toDate,
+#                         "orders_in_orange": orders_in_range,
+#                         "income": total_income,
+#                         "refund_amount": refund_amount,
+#                         "profit": total_profit,
+#                         "successfull": total_successfull_orders,
+#                         "refund": total_refund_amount,
+#                         "requests": requests,
+#                         "monthly_sales_data": data,
+#                         "cod": cod,
+#                         "razor_pay": razor_pay,
+#                         "order_count": order_count,
+#                         "user_count": user_count,
+#                         "product_count": product_count,
+#                         "categories": categories,
+#                     }
+#                 else:
+#                     messages.error(request, "select dates properly")
+#                     return redirect("dashboard")
+#             except Exception as e:
+#                 print(e)
+#                 return redirect("dashboard")
+#         else:
+#             context = {
+#                 "income": total_income,
+#                 "refund_amount": refund_amount,
+#                 "profit": total_profit,
+#                 "successfull": total_successfull_orders,
+#                 "refund": total_refund_amount,
+#                 "requests": requests,
+#                 "monthly_sales_data": data,
+#                 "cod": cod,
+#                 "razor_pay": razor_pay,
+#                 "order_count": order_count,
+#                 "user_count": user_count,
+#                 "product_count": product_count,
+#                 "categories": categories,
+#             }
+
+#         return render(request, "admin/admin_dashboard.html", context)
+#     except Exception as e:
+#         print(e)
+#         return render(request, "admin/admin_dashboard.html", context)
+
+
 @staff_member_required(login_url="admin_login")
 @cache_control(no_cache=True, no_store=True)
 def admin_dashboard(request):
-    context = {}
     try:
         income = Order.objects.filter(
             Q(status="Delivered") | Q(status="Return Request Rejected")
         ).aggregate(Sum("order_total"))["order_total__sum"]
 
-        total_income = float(income)
+        # total_income = float(income)
+        total_income = float(income) if income is not None else 0.0  # 03/12
 
         total_successfull_orders = Order.objects.filter(
             Q(status="Delivered") | Q(status="Return Request Rejected")
@@ -86,13 +218,17 @@ def admin_dashboard(request):
             Sum("refund_amount")
         )["refund_amount__sum"]
 
-        total_refund_amount = float(refund_amount)
+        # total_refund_amount = float(refund_amount)
+        total_refund_amount = (
+            float(refund_amount) if refund_amount is not None else 0.0
+        )  # 03/12
 
         # total_profit = round(total_income * Decimal(0.20), 2)
 
         profit = total_income * 0.20
 
         total_profit = float(profit)
+
         user_count = CustomUser.objects.all().count()
         product_count = Product.objects.all().count()
         order_count = Order.objects.count()
@@ -103,6 +239,7 @@ def admin_dashboard(request):
         ).count()
 
         refund_amount = Order.objects.aggregate(total=Sum("refund_amount"))["total"]
+        refund_amount = refund_amount if refund_amount is not None else 0.0  # 03/12
 
         # monthly sales
 
@@ -137,8 +274,17 @@ def admin_dashboard(request):
 
         # monthly sales calculation end
 
-        cod = round((cash_on_delivery / order_count) * 100)
-        razor_pay = round((razor_pay / order_count) * 100)
+        # cod = round((cash_on_delivery / order_count) * 100)
+        # razor_pay = round((razor_pay / order_count) * 100)
+
+        # updated 03/12
+        if order_count == 0:
+            cod = 0
+            razor_pay = 0
+        else:
+            cod = round((cash_on_delivery / order_count) * 100)
+            razor_pay = round((razor_pay / order_count) * 100)
+        # updated end
 
         requests = Order.objects.filter(status="Return Requested")
 
@@ -190,11 +336,11 @@ def admin_dashboard(request):
                 "product_count": product_count,
                 "categories": categories,
             }
-
         return render(request, "admin/admin_dashboard.html", context)
     except Exception as e:
         print(e)
-        return render(request, "admin/admin_dashboard.html", context)
+        # return redirect("dashboard")
+        return redirect("admin_product")
 
 
 def pdf_report(request):

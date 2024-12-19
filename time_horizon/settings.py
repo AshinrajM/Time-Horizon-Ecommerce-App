@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import dj_database_url
 from pathlib import Path
 import os
 
@@ -94,6 +95,23 @@ DATABASES = {
         "HOST": "localhost",
     }
 }
+
+DATABASES["default"] = dj_database_url.parse(
+    "postgresql://timehorizon_user:EA5vsGZE8cFw72cC8u7AMpajSm4VLkXp@dpg-cti3sbq3esus73benna0-a.oregon-postgres.render.com/timehorizon"
+)
+
+# postgresql://timehorizon_user:EA5vsGZE8cFw72cC8u7AMpajSm4VLkXp@dpg-cti3sbq3esus73benna0-a.oregon-postgres.render.com/timehorizon
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.environ.get('POSTGRES_NAME'),
+#         'USER': os.environ.get('POSTGRES_USER'),
+#         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+#         'HOST': 'db',
+#         'PORT': 5432, #default port you don't need to mention in docker-compose
+#     }
+# }
 
 
 # Password validation
